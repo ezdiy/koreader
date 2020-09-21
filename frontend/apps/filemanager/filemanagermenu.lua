@@ -335,17 +335,14 @@ function FileManagerMenu:setUpdateItemTable()
         table.insert(self.menu_items.developer_options.sub_item_table, {
             text = _("Disable C blitter"),
             enabled_func = function()
-                return lfs.attributes("libs/libblitbuffer.so", "mode") == "file"
+                return require("ffi/blitbuffer").has_cblitbuffer
             end,
             checked_func = function()
-                return G_reader_settings:isTrue("dev_no_c_blitter")
+                -- Triple negatives for legacy reasons :>
+                return not require("ffi/blitbuffer"):enableCBB(not G_reader_settings:isTrue("dev_no_c_blitter"))
             end,
             callback = function()
                 G_reader_settings:flipNilOrFalse("dev_no_c_blitter")
-                local InfoMessage = require("ui/widget/infomessage")
-                UIManager:show(InfoMessage:new{
-                    text = _("This will take effect on next restart."),
-                })
             end,
         })
     end
